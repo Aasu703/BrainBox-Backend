@@ -1,3 +1,4 @@
+// backend/index.js
 const express = require("express");
 const cors = require("cors"); // Single declaration of cors
 const bodyParser = require('body-parser');
@@ -9,6 +10,7 @@ const Participation = require("./routes/ParticipationRoute"); // Correct import
 const ChatMessage = require("./routes/ChatMessageRoute"); // Correct
 const Material = require("./routes/MaterialRoute"); // Correct
 const jwt = require("jsonwebtoken"); // For middleware
+const path = require('path');
 require("dotenv").config(); // Load environment variables
 
 // Creating a server
@@ -39,9 +41,11 @@ app.use(cors({
 // Other Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve uploaded files
 
-// Apply authentication middleware to protected routes (e.g., chat)
-app.use('/api/chat', authenticateToken); // Protect chat routes
+// Apply authentication middleware to protected routes (e.g., chat and materials)
+app.use('/api/chat', authenticateToken);
+app.use('/api/material', authenticateToken); // Protect material routes
 
 // Routes
 app.use('/users', UserRoute);

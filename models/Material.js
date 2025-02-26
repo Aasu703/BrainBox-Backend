@@ -1,24 +1,43 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../backend/db');
+// backend/models/Material.js
+const { DataTypes } = require("sequelize");
+const sequelize = require("../backend/db");
+const User = require("./User"); // Import User model
 
-const Material = sequelize.define('Material', {
-    Material_ID: {
+const Material = sequelize.define("Material", {
+    id: {
         type: DataTypes.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
-        autoIncrement: true
     },
-    Uploaded_By: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
-    Material_Type: {
+    fileName: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
-    Uploaded_Date: {
+    filePath: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    fileType: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: User,
+            key: 'id',
+        },
+    },
+    uploadedAt: {
         type: DataTypes.DATE,
-        allowNull: false
-    }
+        defaultValue: DataTypes.NOW,
+    },
+}, {
+    timestamps: true,
 });
+
+// Define association with User
+Material.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = Material;

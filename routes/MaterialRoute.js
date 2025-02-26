@@ -1,8 +1,9 @@
+// backend/routes/MaterialRoute.js
 const express = require('express');
 const router = express.Router();
 const MaterialController = require('../controller/MaterialController');
 
-router.post('/materials', MaterialController.uploadMaterial);
-router.get('/materials', MaterialController.getMaterials);
+router.post('/upload', MaterialController.uploadMaterial);
+router.get('/user', MaterialController.getUserMaterials);
 
 module.exports = router;
