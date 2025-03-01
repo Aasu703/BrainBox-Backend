@@ -1,25 +1,25 @@
-// backend/index.js
 const express = require("express");
-const cors = require("cors"); // Single declaration of cors
+const cors = require("cors");
 const bodyParser = require('body-parser');
-const sequelize = require('./backend/db'); // Fixed typo
-const UserRoute = require('./routes/UserRoute'); // Correct import
+const db = require('./backend/db'); // Import the db object
+const UserRoute = require('./routes/UserRoute');
 const VirtualRoute = require("./routes/VirtualRoute");
-const StudySession = require("./routes/StudyRoute"); // Correct
-const Participation = require("./routes/ParticipationRoute"); // Correct import
-const ChatMessage = require("./routes/ChatMessageRoute"); // Correct
-const Material = require("./routes/MaterialRoute"); // Correct
-const jwt = require("jsonwebtoken"); // For middleware
+const StudySession = require("./routes/StudyRoute");
+const Participation = require("./routes/ParticipationRoute");
+const ChatMessage = require("./routes/ChatMessageRoute");
+const Material = require("./routes/MaterialRoute");
+const TaskRoute = require("./routes/TaskRoute"); // New route
+const jwt = require("jsonwebtoken");
 const path = require('path');
-require("dotenv").config(); // Load environment variables
+require("dotenv").config();
 
 // Creating a server
 const app = express();
 
-// JWT middleware for authentication (optional, for protected routes)
+// JWT middleware for authentication
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Expect "Bearer <token>"
+    const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) return res.status(401).json({ message: "No token provided" });
 
@@ -30,22 +30,23 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// CORS Middleware (configure to allow multiple origins for development)
+// CORS Middleware
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'], // Allow both ports for development
-    credentials: true, // Allow cookies, authorization headers, etc.
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow common HTTP methods
-    allowedHeaders: ['Content-Type', 'Authorization'], // Allow common headers
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Other Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Apply authentication middleware to protected routes (e.g., chat and materials)
+// Apply authentication middleware to protected routes
 app.use('/api/chat', authenticateToken);
-app.use('/api/material', authenticateToken); // Protect material routes
+app.use('/api/material', authenticateToken);
+app.use('/api/task', authenticateToken); // Protect task routes
 
 // Routes
 app.use('/users', UserRoute);
@@ -54,6 +55,7 @@ app.use('/api/material', Material);
 app.use('/api/Participation', Participation);
 app.use('/api/study', StudySession);
 app.use('/api/chat', ChatMessage);
+app.use('/api/task', TaskRoute); // Add task route
 
 // Creating a port
 const PORT = process.env.PORT || 5000;
@@ -63,9 +65,14 @@ app.listen(PORT, () => {
 });
 
 // Connect to the database server
-sequelize.authenticate()
+db.sequelize.authenticate()
     .then(() => console.log('Database connected successfully!'))
     .catch((err) => console.error('Error connecting to database:', err));
+
+// Sync models
+db.sequelize.sync({ alter: true })
+    .then(() => console.log('Models synchronized successfully'))
+    .catch((err) => console.error('Error synchronizing models:', err));
 
 // Optional: Log environment variables for debugging
 console.log("DB Name:", process.env.DB_NAME);

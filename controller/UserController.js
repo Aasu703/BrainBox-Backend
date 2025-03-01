@@ -1,7 +1,7 @@
+const db = require("../backend/db"); // Import db object for User model
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const User = require("../models/User"); // Import the model
-require("dotenv").config();
 
 async function signup(req, res) {
     console.log("Received signup request with body:", req.body); // Debug log
@@ -13,13 +13,13 @@ async function signup(req, res) {
             return res.status(400).json({ message: "All fields (name, email, password, role) are required" });
         }
 
-        const existingUser = await User.findOne({ where: { email } });
+        const existingUser = await db.User.findOne({ where: { email } });
         if (existingUser) {
             console.log("Email already registered:", email);
             return res.status(400).json({ message: "Email already registered" });
         }
 
-        const user = await User.create({ name, email, password, role });
+        const user = await db.User.create({ name, email, password, role });
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
             process.env.JWT_SECRET,
@@ -48,7 +48,7 @@ async function login(req, res) {
             return res.status(400).json({ message: "Email and password are required" });
         }
 
-        const user = await User.findOne({ where: { email } });
+        const user = await db.User.findOne({ where: { email } });
         console.log("Found user:", user); // Debug log
         if (!user) {
             console.log("User not found for email:", email);
@@ -82,7 +82,7 @@ async function login(req, res) {
 
 async function getUsers(req, res) {
     try {
-        const users = await User.findAll({ attributes: ["id", "name", "email", "role"] });
+        const users = await db.User.findAll({ attributes: ["id", "name", "email", "role"] });
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ error: error.message });

@@ -1,4 +1,3 @@
-// backend/routes/MaterialRoute.js
 const express = require('express');
 const router = express.Router();
 const MaterialController = require('../controller/MaterialController');

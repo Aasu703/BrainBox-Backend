@@ -1,6 +1,6 @@
 const db = require("../backend/db"); // Import the db object containing initialized models
 
-exports.createSession = async (req, res) => {
+async function createSession(req, res)  {
     try {
         const { Room_ID, Session_Date, Start_time, End_time } = req.body;
         if (!Room_ID || !Session_Date || !Start_time || !End_time) {
@@ -14,7 +14,7 @@ exports.createSession = async (req, res) => {
     }
 };
 
-exports.getSessions = async (req, res) => {
+async function getSessions (req, res) {
     try {
         const sessions = await db.StudySession.findAll({
             include: [{ model: db.VirtualRoom, as: 'Room' }]
@@ -25,3 +25,5 @@ exports.getSessions = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+module.exports = {createSession, getSessions}

@@ -1,6 +1,6 @@
-// backend/controllers/TaskController.js
-const Task = require('../models/Task');
-const User = require('../models/User');
+const db = require("../../backend/db"); // Import db object for Task and User models
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 exports.createTask = async (req, res) => {
     try {
@@ -12,7 +12,7 @@ exports.createTask = async (req, res) => {
         const user = jwt.verify(token, process.env.JWT_SECRET);
         if (user.role !== "teacher") return res.status(403).json({ message: "Only teachers can create tasks" });
 
-        const task = await Task.create({
+        const task = await db.Task.create({
             title,
             description,
             dueDate,
@@ -36,7 +36,7 @@ exports.getTasks = async (req, res) => {
 
         const user = jwt.verify(token, process.env.JWT_SECRET);
         const whereClause = user.role === "student" ? { assignedTo: user.id } : {};
-        const tasks = await Task.findAll({ where: whereClause, include: [{ model: User, as: 'Assignee' }, { model: User, as: 'Assigner' }] });
+        const tasks = await db.Task.findAll({ where: whereClause, include: [{ model: db.User, as: 'Assignee' }, { model: db.User, as: 'Assigner' }] });
 
         res.status(200).json(tasks);
     } catch (error) {
@@ -53,7 +53,7 @@ exports.updateTask = async (req, res) => {
         if (!token) return res.status(401).json({ message: "No token provided" });
 
         const user = jwt.verify(token, process.env.JWT_SECRET);
-        const task = await Task.findByPk(id);
+        const task = await db.Task.findByPk(id);
         if (!task) return res.status(404).json({ message: "Task not found" });
         if (user.role === "student" && task.assignedTo !== user.id) return res.status(403).json({ message: "Unauthorized" });
 
@@ -75,7 +75,7 @@ exports.deleteTask = async (req, res) => {
         if (!token) return res.status(401).json({ message: "No token provided" });
 
         const user = jwt.verify(token, process.env.JWT_SECRET);
-        const task = await Task.findByPk(id);
+        const task = await db.Task.findByPk(id);
         if (!task) return res.status(404).json({ message: "Task not found" });
         if (user.role !== "teacher" || task.assignedBy !== user.id) return res.status(403).json({ message: "Unauthorized" });
 

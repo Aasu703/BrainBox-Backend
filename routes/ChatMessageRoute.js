@@ -1,4 +1,3 @@
-// backend/routes/ChatMessageRoute.js
 const express = require('express');
 const router = express.Router();
 const ChatMessageController = require('../controller/ChatMessageController');

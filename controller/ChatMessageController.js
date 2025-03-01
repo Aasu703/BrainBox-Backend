@@ -1,5 +1,5 @@
-// backend/controllers/ChatMessageController.js
-const ChatMessage = require('../models/ChatMessage');
+const { Models } = require("openai/resources/models.mjs");
+const db = require("../backend/db"); // Import db object for ChatMessage model
 const { OpenAI } = require('openai'); // Updated for v4.x
 
 // Configure OpenAI with your API key (store in .env for security)
@@ -7,25 +7,25 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY, // Ensure this is set in .env
 });
 
-exports.sendMessage = async (req, res) => {
+async function sendMessage(req, res) {
     try {
-        const message = await ChatMessage.create(req.body);
+        const message = await db.ChatMessage.create(req.body);
         res.status(201).json(message);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
 
-exports.getMessages = async (req, res) => {
+async function getMessages(req, res) {
     try {
-        const messages = await ChatMessage.findAll();
+        const messages = await db.ChatMessage.findAll();
         res.status(200).json(messages);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
 
-exports.getAIResponse = async (req, res) => {
+async function getAIResponse (req, res){
     try {
         const { message } = req.body;
         if (!message) {
@@ -46,3 +46,5 @@ exports.getAIResponse = async (req, res) => {
         res.status(500).json({ error: "Failed to get AI response" });
     }
 };
+
+module.exports = {sendMessage, getMessages, getAIResponse}

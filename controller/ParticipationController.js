@@ -1,6 +1,6 @@
 const db = require("../backend/db"); // Import the db object containing initialized models
 
-exports.addParticipation = async (req, res) => {
+async function addParticipation(req, res)  {
     try {
         const { UserUser_ID, Virtual_RoomRoom_ID } = req.body;
         if (!UserUser_ID || !Virtual_RoomRoom_ID) {
@@ -14,7 +14,7 @@ exports.addParticipation = async (req, res) => {
     }
 };
 
-exports.getParticipations = async (req, res) => {
+async function getParticipations (req, res)  {
     try {
         const participations = await db.Participation.findAll({
             include: [{ model: db.User, as: 'Participant' }, { model: db.VirtualRoom, as: 'Room' }]
@@ -25,3 +25,5 @@ exports.getParticipations = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+module.exports = {addParticipation, getParticipations}
