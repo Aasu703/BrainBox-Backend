@@ -1,13 +1,17 @@
-const { Models } = require("openai/resources/models.mjs");
 const db = require("../backend/db"); // Import db object for ChatMessage model
-const { OpenAI } = require('openai'); // Updated for v4.x
 
-// Configure OpenAI with your API key (store in .env for security)
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY, // Ensure this is set in .env
+// Use dynamic import for OpenAI (ESM)
+let openai;
+import('openai').then(module => {
+    openai = new module.OpenAI({
+        apiKey: process.env.OPENAI_API_KEY, // Ensure this is set in .env
+    });
+}).catch(err => {
+    console.error('Failed to load OpenAI:', err);
+    throw err;
 });
 
-async function sendMessage(req, res) {
+exports.sendMessage = async (req, res) => {
     try {
         const message = await db.ChatMessage.create(req.body);
         res.status(201).json(message);
@@ -16,7 +20,7 @@ async function sendMessage(req, res) {
     }
 };
 
-async function getMessages(req, res) {
+exports.getMessages = async (req, res) => {
     try {
         const messages = await db.ChatMessage.findAll();
         res.status(200).json(messages);
@@ -25,8 +29,11 @@ async function getMessages(req, res) {
     }
 };
 
-async function getAIResponse (req, res){
+exports.getAIResponse = async (req, res) => {
     try {
+        if (!openai) {
+            throw new Error("OpenAI not initialized");
+        }
         const { message } = req.body;
         if (!message) {
             return res.status(400).json({ error: "Message is required" });
@@ -46,5 +53,3 @@ async function getAIResponse (req, res){
         res.status(500).json({ error: "Failed to get AI response" });
     }
 };
-
-module.exports = {sendMessage, getMessages, getAIResponse}

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const UserController = require("../controller/UserController"); // Ensure correct path
+const UserController = require("../controllers/UserController"); // Ensure correct path
 const authMiddleware = require("../middleware/auth"); // Ensure correct path
 
 // Route for user signup

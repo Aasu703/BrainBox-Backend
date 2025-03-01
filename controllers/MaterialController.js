@@ -1,5 +1,4 @@
-// backend/controllers/MaterialController.js
-const Material = require('../models/Material');
+const db = require("../backend/db"); // Import db object for Material model
 const multer = require('multer'); // For file uploads
 const path = require('path');
 const jwt = require('jsonwebtoken');
@@ -37,7 +36,7 @@ exports.uploadMaterial = [
                 return res.status(400).json({ message: "No file uploaded" });
             }
 
-            const material = await Material.create({
+            const material = await db.Material.create({
                 fileName: req.file.originalname,
                 filePath: req.file.path,
                 fileType: req.file.mimetype,
@@ -69,7 +68,7 @@ exports.getUserMaterials = async (req, res) => {
         if (!token) return res.status(401).json({ message: "No token provided" });
 
         const user = jwt.verify(token, process.env.JWT_SECRET);
-        const materials = await Material.findAll({ where: { userId: user.id } });
+        const materials = await db.Material.findAll({ where: { userId: user.id } });
 
         res.status(200).json(materials);
     } catch (error) {

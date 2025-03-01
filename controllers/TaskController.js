@@ -1,4 +1,4 @@
-const db = require("../../backend/db"); // Import db object for Task and User models
+const db = require("../backend/db"); // Import db object for Task and User models
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 

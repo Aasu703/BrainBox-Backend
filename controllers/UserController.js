@@ -1,7 +1,7 @@
 const db = require("../backend/db"); // Import db object for User model
-require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+require("dotenv").config();
 
 async function signup(req, res) {
     console.log("Received signup request with body:", req.body); // Debug log

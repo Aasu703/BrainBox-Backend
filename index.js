@@ -4,10 +4,10 @@ const bodyParser = require('body-parser');
 const db = require('./backend/db'); // Import the db object
 const UserRoute = require('./routes/UserRoute');
 const VirtualRoute = require("./routes/VirtualRoute");
-const StudySession = require("./routes/StudyRoute");
-const Participation = require("./routes/ParticipationRoute");
-const ChatMessage = require("./routes/ChatMessageRoute");
-const Material = require("./routes/MaterialRoute");
+const StudyRoute = require("./routes/StudyRoute");
+const ParticipationRoute = require("./routes/ParticipationRoute");
+const ChatMessageRoute = require("./routes/ChatMessageRoute");
+const MaterialRoute = require("./routes/MaterialRoute");
 const TaskRoute = require("./routes/TaskRoute"); // New route
 const jwt = require("jsonwebtoken");
 const path = require('path');
@@ -15,6 +15,21 @@ require("dotenv").config();
 
 // Creating a server
 const app = express();
+
+// CORS Middleware (updated for better control)
+const corsOptions = {
+    origin: ['http://localhost:3000', 'http://localhost:3001'], // Match frontend ports
+    credentials: true, // Allow cookies/credentials
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
+};
+
+app.use(cors(corsOptions));
+
+// Other Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // JWT middleware for authentication
 const authenticateToken = (req, res, next) => {
@@ -30,19 +45,6 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// CORS Middleware
-app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-
-// Other Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 // Apply authentication middleware to protected routes
 app.use('/api/chat', authenticateToken);
 app.use('/api/material', authenticateToken);
@@ -51,10 +53,10 @@ app.use('/api/task', authenticateToken); // Protect task routes
 // Routes
 app.use('/users', UserRoute);
 app.use("/api/virtualroom", VirtualRoute);
-app.use('/api/material', Material);
-app.use('/api/Participation', Participation);
-app.use('/api/study', StudySession);
-app.use('/api/chat', ChatMessage);
+app.use('/api/material', MaterialRoute);
+app.use('/api/Participation', ParticipationRoute);
+app.use('/api/study', StudyRoute);
+app.use('/api/chat', ChatMessageRoute);
 app.use('/api/task', TaskRoute); // Add task route
 
 // Creating a port
