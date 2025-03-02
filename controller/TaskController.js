@@ -1,4 +1,6 @@
-const db = require("../backend/db"); // Import db object for Task and User models
+const sequelize = require("../backend/db");
+const Task = require("../models/Task");
+const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -10,15 +12,24 @@ exports.createTask = async (req, res) => {
         if (!token) return res.status(401).json({ message: "No token provided" });
 
         const user = jwt.verify(token, process.env.JWT_SECRET);
-        if (user.role !== "teacher") return res.status(403).json({ message: "Only teachers can create tasks" });
+        
+        // Validate assignedTo
+        const finalAssignedTo = assignedTo || user.id;
+        if (!finalAssignedTo || isNaN(finalAssignedTo)) {
+            return res.status(400).json({ error: "assignedTo must be a valid user ID" });
+        }
+        
+        if (user.role !== "teacher" && finalAssignedTo !== user.id) {
+            return res.status(403).json({ message: "Unauthorized to create this task" });
+        }
 
-        const task = await db.Task.create({
+        const task = await Task.create({
             title,
             description,
             dueDate,
-            progress,
-            status,
-            assignedTo,
+            progress: progress || 0,
+            status: status || "pending",
+            assignedTo: finalAssignedTo,
             assignedBy: user.id
         });
 
@@ -28,6 +39,7 @@ exports.createTask = async (req, res) => {
     }
 };
 
+// Other methods (getTasks, updateTask, deleteTask) remain unchanged
 exports.getTasks = async (req, res) => {
     try {
         const authHeader = req.headers['authorization'];
@@ -36,7 +48,10 @@ exports.getTasks = async (req, res) => {
 
         const user = jwt.verify(token, process.env.JWT_SECRET);
         const whereClause = user.role === "student" ? { assignedTo: user.id } : {};
-        const tasks = await db.Task.findAll({ where: whereClause, include: [{ model: db.User, as: 'Assignee' }, { model: db.User, as: 'Assigner' }] });
+        const tasks = await Task.findAll({
+            where: whereClause,
+            include: [{ model: User, as: 'Assignee' }, { model: User, as: 'Assigner' }],
+        });
 
         res.status(200).json(tasks);
     } catch (error) {
@@ -47,18 +62,19 @@ exports.getTasks = async (req, res) => {
 exports.updateTask = async (req, res) => {
     try {
         const { id } = req.params;
-        const { progress, status } = req.body;
+        const { progress, status, dueDate } = req.body;
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
         if (!token) return res.status(401).json({ message: "No token provided" });
 
         const user = jwt.verify(token, process.env.JWT_SECRET);
-        const task = await db.Task.findByPk(id);
+        const task = await Task.findByPk(id);
         if (!task) return res.status(404).json({ message: "Task not found" });
         if (user.role === "student" && task.assignedTo !== user.id) return res.status(403).json({ message: "Unauthorized" });
 
         task.progress = progress || task.progress;
         task.status = status || task.status;
+        task.dueDate = dueDate || task.dueDate;
         await task.save();
 
         res.status(200).json({ message: "Task updated successfully", task });
@@ -75,7 +91,7 @@ exports.deleteTask = async (req, res) => {
         if (!token) return res.status(401).json({ message: "No token provided" });
 
         const user = jwt.verify(token, process.env.JWT_SECRET);
-        const task = await db.Task.findByPk(id);
+        const task = await Task.findByPk(id);
         if (!task) return res.status(404).json({ message: "Task not found" });
         if (user.role !== "teacher" || task.assignedBy !== user.id) return res.status(403).json({ message: "Unauthorized" });
 
@@ -85,3 +101,4 @@ exports.deleteTask = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+

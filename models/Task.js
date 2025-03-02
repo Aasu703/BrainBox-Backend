@@ -1,55 +1,49 @@
-module.exports = (sequelize, DataTypes) => {
-    const Task = sequelize.define("Task", {
-        id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        title: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        description: {
-            type: DataTypes.TEXT,
-            allowNull: true
-        },
-        dueDate: {
-            type: DataTypes.DATE,
-            allowNull: false
-        },
-        progress: {
-            type: DataTypes.INTEGER,
-            defaultValue: 0,
-            validate: { min: 0, max: 100 }
-        },
-        status: {
-            type: DataTypes.ENUM("pending", "in-progress", "completed"),
-            defaultValue: "pending"
-        },
-        assignedTo: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'Users',
-                key: 'id',
-            },
-        },
-        assignedBy: {
-            type: DataTypes.INTEGER,
-            allowNull: true,
-            references: {
-                model: 'Users',
-                key: 'id',
-            },
-        },
-    }, {
-        timestamps: true
-    });
+const { DataTypes } = require("sequelize");
+const sequelize = require("../backend/db");
+const User = require("./User");
 
-    Task.associate = (models) => {
-        Task.belongsTo(models.User, { foreignKey: 'assignedTo', as: 'Assignee' });
-        Task.belongsTo(models.User, { foreignKey: 'assignedBy', as: 'Assigner' });
-    };
+const Task = sequelize.define("Task", {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    title: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    description: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    dueDate: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    progress: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        validate: { min: 0, max: 100 }
+    },
+    status: {
+        type: DataTypes.ENUM("pending", "in-progress", "completed"),
+        defaultValue: "pending"
+    },
+    assignedTo: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: { model: User, key: "id" },
+        onDelete: "CASCADE"
+    },
+    assignedBy: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: { model: User, key: "id" },
+        onDelete: "SET NULL"
+    },
+}, { timestamps: true });
 
-    return Task;
-};
+Task.belongsTo(User, { foreignKey: "assignedTo", as: "Assignee", onDelete: "CASCADE" });
+Task.belongsTo(User, { foreignKey: "assignedBy", as: "Assigner", onDelete: "SET NULL" });
+
+module.exports = Task;

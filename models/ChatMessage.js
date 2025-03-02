@@ -1,29 +1,27 @@
-module.exports = (sequelize, DataTypes) => {
-    const ChatMessage = sequelize.define("ChatMessage", {
-        Message_ID: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true,
-        },
-        Room_ID: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        Sent_By: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        Message_Content: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-        },
-        Sent_Time: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW,
-        },
-    }, {
-        timestamps: true
-    });
+const { DataTypes } = require("sequelize");
+const sequelize = require("../backend/db");
+const User = require("./User");
 
-    return ChatMessage;
-};
+const ChatMessage = sequelize.define("ChatMessage", {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+    content: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+    },
+    roomId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    sentBy: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+});
+
+ChatMessage.belongsTo(User, { as: "Sender", foreignKey: "sentBy" });
+
+module.exports = ChatMessage;

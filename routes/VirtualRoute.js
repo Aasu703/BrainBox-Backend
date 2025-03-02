@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const VirtualRoomController = require('../controllers/VirtualRoomController');
+const VirtualRoomController = require('../controller/VirtualRoomController');
+const authenticateToken = require('../middleware/auth');
 
-router.post('/rooms', VirtualRoomController.createRoom);
-router.get('/rooms', VirtualRoomController.getRooms);
+router.post('/rooms', authenticateToken, VirtualRoomController.createRoom);
+router.get('/rooms', authenticateToken, VirtualRoomController.getRooms);
+router.post('/signaling/:roomId', authenticateToken, VirtualRoomController.signaling); // Placeholder for WebRTC
 
 module.exports = router;

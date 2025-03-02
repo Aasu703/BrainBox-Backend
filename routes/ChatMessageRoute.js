@@ -1,9 +1,7 @@
-const express = require('express');
+const express = require("express");
+const { getMessages } = require("../controller/ChatMessageController");
 const router = express.Router();
-const ChatMessageController = require('../controllers/ChatMessageController');
 
-router.post('/messages', ChatMessageController.sendMessage);
-router.get('/messages', ChatMessageController.getMessages);
-router.post('/ai/response', ChatMessageController.getAIResponse);
+router.get("/messages", getMessages);
 
 module.exports = router;

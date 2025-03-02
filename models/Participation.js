@@ -1,22 +1,28 @@
-module.exports = (sequelize, DataTypes) => {
-    const Participation = sequelize.define('Participation', {
-        UserUser_ID: {
-            type: DataTypes.INTEGER,
-            allowNull: false
-        },
-        Virtual_RoomRoom_ID: {
-            type: DataTypes.INTEGER,
-            allowNull: false
-        }
-    }, {
-        timestamps: true // Optional: Add timestamps if needed
-    });
+const { DataTypes } = require("sequelize");
+const sequelize = require("../backend/db");
+const User = require("./User");
+const VirtualRoom = require("./VirtualRoom");
 
-    // Define associations if needed (e.g., with User and VirtualRoom)
-    Participation.associate = (models) => {
-        Participation.belongsTo(models.User, { foreignKey: 'UserUser_ID', as: 'Participant' });
-        Participation.belongsTo(models.VirtualRoom, { foreignKey: 'Virtual_RoomRoom_ID', as: 'Room' });
-    };
+const Participation = sequelize.define("Participation", {
+    Participation_ID:{
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        unique: true  
+    },
 
-    return Participation;
-};
+    UserUser_ID: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: { model: User, key: "id" },
+        onDelete: "CASCADE"
+    },
+    Virtual_RoomRoom_ID: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: { model: VirtualRoom, key: "Room_ID" },
+        onDelete: "CASCADE"
+    }
+}, { timestamps: true });
+
+module.exports = Participation;
