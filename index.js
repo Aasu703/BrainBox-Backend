@@ -3,10 +3,10 @@ const cors = require("cors");
 const bodyParser = require('body-parser');
 const sequelize = require('./backend/db');
 const UserRoute = require('./routes/UserRoute');
-const VirtualRoute = require("./routes/VirtualRoute");
-const StudyRoute = require("./routes/StudyRoute");
-const ParticipationRoute = require("./routes/ParticipationRoute");
-const ChatMessageRoute = require("./routes/ChatMessageRoute");
+
+
+
+const path = require("path");
 const MaterialRoute = require("./routes/MaterialRoute");
 const TaskRoute = require("./routes/TaskRoute");
 const jwt = require("jsonwebtoken");
@@ -36,6 +36,12 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+// app.use(cors());
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
+
+// Serve the uploads folder statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Other Middleware
 app.use(express.json());
@@ -55,11 +61,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Apply authentication middleware to protected routes
-app.use('/api/chat', ChatMessageRoute);
-app.use('/api/virtualroom', VirtualRoute);
-app.use('/api/participation', ParticipationRoute);
-app.use('/api/study', StudyRoute);
-app.use('/api/material', MaterialRoute);
+
+
+app.use('/api/materials', MaterialRoute);
 app.use('/api/task', TaskRoute);
 
 // Routes

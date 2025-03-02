@@ -1,33 +1,62 @@
 const db = require('../backend/db');
+const Material = require('../models/Material');
 
-const MaterialController = {
-    getMaterials: async (req, res) => {
-        const userId = req.user.id; // From authenticateToken
-        try {
-            const result = await db.query(
-                'SELECT id, filePath, fileName, Material_Type, Uploaded_Date FROM Material WHERE Uploaded_By = $1',
-                [userId]
-            );
-            res.json(result.rows);
-        } catch (err) {
-            res.status(400).json({ error: err.message });
+exports.createMaterial = async (req, res) => {
+    try {
+        const { fileType,  uploadedBy } = req.body;
+        const filePath = req.file ? req.file.path : null; // ✅ Get file path from Multer
+
+        if (!filePath || !uploadedBy) {
+            return res.status(400).json({ message: "File path and uploader are required" });
         }
-    },
-    uploadMaterial: async (req, res) => {
-        const { Material_Type } = req.body;
-        const filePath = req.file.path;
-        const fileName = req.file.originalname;
-        const userId = req.user.id;
-        try {
-            const result = await db.query(
-                'INSERT INTO Material (filePath, fileName, Material_Type, Uploaded_By, Uploaded_Date) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
-                [filePath, fileName, Material_Type, userId]
-            );
-            res.json(result.rows[0]);
-        } catch (err) {
-            res.status(500).json({ error: err.message });
-        }
-    },
+
+        const material = await Material.create({ filePath, fileType, uploadedBy });
+        res.status(201).json(material);
+    } catch (error) {
+        res.status(500).json({ message: "Error uploading material", error: error.message });
+    }
 };
 
-module.exports = MaterialController;
+
+// Get All Materials
+exports.getAllMaterials = async (req, res) => {
+    try {
+        const materials = await Material.findAll();
+        res.status(200).json(materials);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching materials", error: error.message });
+    }
+};
+
+// Get Material by ID
+exports.getMaterialById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const material = await Material.findByPk(id);
+        
+        if (!material) {
+            return res.status(404).json({ message: "Material not found" });
+        }
+        
+        res.status(200).json(material);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching material", error: error.message });
+    }
+};
+
+// Delete Material
+exports.deleteMaterial = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const material = await Material.findByPk(id);
+        
+        if (!material) {
+            return res.status(404).json({ message: "Material not found" });
+        }
+        
+        await material.destroy();
+        res.status(200).json({ message: "Material deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Error deleting material", error: error.message });
+    }
+};

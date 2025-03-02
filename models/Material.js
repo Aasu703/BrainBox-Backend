@@ -1,7 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../backend/db");
+const User = require("./User");  // ✅ Imported User model
 
-const Material = sequelize.define("Materials", {
+const Materials = sequelize.define("Materials", {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -18,6 +19,12 @@ const Material = sequelize.define("Materials", {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
     },
+    uploadedBy: {  // ✅ Renamed for clarity
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: { model: User, key: "id" },
+        onDelete: "CASCADE"
+    },
 });
 
-module.exports = Material;
+module.exports = Materials;

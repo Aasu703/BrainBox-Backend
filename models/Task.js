@@ -12,30 +12,30 @@ const Task = sequelize.define("Task", {
         type: DataTypes.STRING,
         allowNull: false
     },
-    description: {
-        type: DataTypes.TEXT,
-        allowNull: true
-    },
+    // description: {
+    //     type: DataTypes.TEXT,
+    //     allowNull: true
+    // },
     dueDate: {
         type: DataTypes.DATE,
         allowNull: false
     },
-    progress: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-        validate: { min: 0, max: 100 }
-    },
+    // progress: {
+    //     type: DataTypes.INTEGER,
+    //     defaultValue: 0,
+    //     validate: { min: 0, max: 100 }
+    // },
     status: {
         type: DataTypes.ENUM("pending", "in-progress", "completed"),
         defaultValue: "pending"
     },
-    assignedTo: {
+    assignedTo: {  // ✅ Renamed for consistency
         type: DataTypes.INTEGER,
         allowNull: false,
         references: { model: User, key: "id" },
         onDelete: "CASCADE"
     },
-    assignedBy: {
+    assignedBy: {  // ✅ Renamed for consistency
         type: DataTypes.INTEGER,
         allowNull: true,
         references: { model: User, key: "id" },
