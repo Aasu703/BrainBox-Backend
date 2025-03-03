@@ -3,8 +3,8 @@ const Material = require('../models/Material');
 
 exports.createMaterial = async (req, res) => {
     try {
-        const { fileType,  uploadedBy } = req.body;
-        const filePath = req.file ? req.file.path : null; // ✅ Get file path from Multer
+        const { fileType, uploadedBy } = req.body;
+        const filePath = req.file ? req.file.path : null;
 
         if (!filePath || !uploadedBy) {
             return res.status(400).json({ message: "File path and uploader are required" });
@@ -17,8 +17,6 @@ exports.createMaterial = async (req, res) => {
     }
 };
 
-
-// Get All Materials
 exports.getAllMaterials = async (req, res) => {
     try {
         const materials = await Material.findAll();
@@ -28,7 +26,6 @@ exports.getAllMaterials = async (req, res) => {
     }
 };
 
-// Get Material by ID
 exports.getMaterialById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -44,7 +41,6 @@ exports.getMaterialById = async (req, res) => {
     }
 };
 
-// Delete Material
 exports.deleteMaterial = async (req, res) => {
     try {
         const { id } = req.params;

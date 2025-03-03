@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../backend/db");
 const User = require("./User");
 
-const Task = sequelize.define("Task", {
+const Task = sequelize.define("Tasks", {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -12,19 +12,19 @@ const Task = sequelize.define("Task", {
         type: DataTypes.STRING,
         allowNull: false
     },
-    // description: {
-    //     type: DataTypes.TEXT,
-    //     allowNull: true
-    // },
+    description: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
     dueDate: {
         type: DataTypes.DATE,
         allowNull: false
     },
-    // progress: {
-    //     type: DataTypes.INTEGER,
-    //     defaultValue: 0,
-    //     validate: { min: 0, max: 100 }
-    // },
+    progress: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        validate: { min: 0, max: 100 }
+    },
     status: {
         type: DataTypes.ENUM("pending", "in-progress", "completed"),
         defaultValue: "pending"
