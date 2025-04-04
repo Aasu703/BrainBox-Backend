@@ -24,4 +24,4 @@ async function Conn() {
 
 Conn();
 
-module.exports = sequelize;
+module.exports = sequelize; 
